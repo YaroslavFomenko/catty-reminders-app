@@ -17,10 +17,10 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /home/yaroslav/devops-lab/catty-reminders-app
-            git fetch --all
-            git checkout lab2
-            git reset --hard origin/lab2
+            git fetch --all --tags
+            git checkout ${{ github.ref_name }}
             echo "DEPLOY_REF=$(git rev-parse HEAD)" | sudo tee /etc/catty-app-env
             sudo systemctl restart catty-app
             sleep 3
             systemctl is-active catty-app --no-pager
+            cat /etc/catty-app-env
