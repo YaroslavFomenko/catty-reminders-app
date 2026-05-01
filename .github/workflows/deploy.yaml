@@ -1,0 +1,26 @@
+name: CD
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to server via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: course.prafdin.ru
+          port: 3124
+          username: yaroslav
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/yaroslav/devops-lab/catty-reminders-app
+            git fetch --all
+            git checkout lab2
+            git reset --hard origin/lab2
+            echo "DEPLOY_REF=$(git rev-parse HEAD)" | sudo tee /etc/catty-app-env
+            sudo systemctl restart catty-app
+            sleep 3
+            sudo systemctl status catty-app --no-pager
