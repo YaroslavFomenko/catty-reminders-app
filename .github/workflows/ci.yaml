@@ -24,9 +24,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       
-      - name: Run tests
+      - name: Start application
         run: |
-          python -m pytest tests/ --tb=short -q
+          cp .env.example .env 2>/dev/null || echo "SECRET_KEY=test" > .env
+          nohup uvicorn app.main:app --host 0.0.0.0 --port 8181 &
+          sleep 3
+      
+      - name: Run API tests
+        run: |
+          python -m pytest tests/test_api.py tests/test_unit.py --tb=short -q
       
       - name: Upload test results
         if: always()
