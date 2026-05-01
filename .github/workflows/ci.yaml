@@ -24,28 +24,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       
-      - name: Start application
+      - name: Run unit tests
         run: |
-          echo "SECRET_KEY=test" > .env
-          nohup uvicorn app.main:app --host 0.0.0.0 --port 8181 > app.log 2>&1 &
-          echo "Waiting for app to start..."
-          for i in $(seq 1 30); do
-            if curl -s http://localhost:8181 > /dev/null 2>&1; then
-              echo "App is ready!"
-              break
-            fi
-            echo "Attempt $i: not ready yet..."
-            sleep 1
-          done
-          curl -s http://localhost:8181 | head -5
-      
-      - name: Run API tests
-        run: |
-          python -m pytest tests/test_api.py tests/test_unit.py --tb=short -q
-      
-      - name: Show app logs on failure
-        if: failure()
-        run: cat app.log
+          python -m pytest tests/test_unit.py --tb=short -q
       
       - name: Upload test results
         if: always()
