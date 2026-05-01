@@ -23,4 +23,4 @@ jobs:
             echo "DEPLOY_REF=$(git rev-parse HEAD)" | sudo tee /etc/catty-app-env
             sudo systemctl restart catty-app
             sleep 3
-            sudo systemctl status catty-app --no-pager
+            systemctl is-active catty-app --no-pager
