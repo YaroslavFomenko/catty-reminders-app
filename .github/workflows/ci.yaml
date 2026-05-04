@@ -33,18 +33,19 @@ jobs:
           echo "SECRET_KEY=test" > .env
           nohup uvicorn app.main:app --host 127.0.0.1 --port 8181 > app.log 2>&1 &
           for i in $(seq 1 15); do
-            if curl -s http://127.0.0.1:8181 > /dev/null 2>&1; then
+            if curl -s http://127.0.0.1:8181/login > /dev/null 2>&1; then
               echo "App started!"
               break
             fi
             echo "Attempt $i..."
             sleep 2
           done
+          cat app.log
 
       - name: Run all tests
         env:
           PYTHONPATH: ${{ github.workspace }}
-        run: pytest --junitxml=test_result.xml --tb=short || true
+        run: pytest --junitxml=test_result.xml --tb=short
 
       - name: Upload test results
         if: always()
