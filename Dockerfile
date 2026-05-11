@@ -10,6 +10,10 @@ COPY static/ ./static/
 COPY templates/ ./templates/
 COPY config.json .
 
+# DEPLOY_REF задаётся при сборке
+ARG DEPLOY_REF=unknown
+ENV DEPLOY_REF=${DEPLOY_REF}
+
 EXPOSE 8181
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8181"]
