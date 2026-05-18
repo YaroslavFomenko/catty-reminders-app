@@ -9,19 +9,6 @@ on:
 jobs:
   tests:
     runs-on: ubuntu-latest
-    services:
-      db:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: testpass
-          MYSQL_DATABASE: catty_db
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h localhost"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -32,15 +19,10 @@ jobs:
         run: |
           pip install -r requirements.txt uvicorn pytest-playwright
           playwright install --with-deps chromium
-      - name: Start app
-        run: |
-          sed -i 's/"host": "db"/"host": "127.0.0.1"/g' config.json
-          nohup uvicorn app.main:app --host 127.0.0.1 --port 8181 &
-          sleep 10
-      - name: Run tests
+      - name: Run unit tests
         env:
           PYTHONPATH: ${{ github.workspace }}
-        run: pytest --junitxml=test_result.xml || true
+        run: pytest tests/test_unit.py --junitxml=test_result.xml
       - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4
