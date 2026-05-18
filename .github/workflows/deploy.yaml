@@ -20,22 +20,15 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 3124
           script: |
-            IMAGE="ghcr.io/${{ steps.prep.outputs.repo_lower }}:latest"
-            CONTAINER_NAME="catty-container"
+            cd /home/yaroslav/devops-lab/catty-reminders-app
             
             echo "Logging in to GHCR..."
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
-            echo "Pulling image: $IMAGE"
-            docker pull $IMAGE
+            echo "Pulling images..."
+            docker compose pull
             
-            docker stop $CONTAINER_NAME || true
-            docker rm $CONTAINER_NAME || true
-            
-            docker run -d \
-              --name $CONTAINER_NAME \
-              -p 8181:8181 \
-              --restart unless-stopped \
-              $IMAGE
+            echo "Restarting services..."
+            docker compose up -d --remove-orphans
             
             docker image prune -f
