@@ -10,8 +10,7 @@ COPY static/ ./static/
 COPY templates/ ./templates/
 COPY config.json .
 
-# DEPLOY_REF задаётся при сборке
-ARG DEPLOY_REF=unknown
+ARG DEPLOY_REF="--"
 ENV DEPLOY_REF=${DEPLOY_REF}
 
 EXPOSE 8181
