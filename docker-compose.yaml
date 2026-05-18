@@ -6,7 +6,7 @@ services:
     ports:
       - "8181:8181"
     environment:
-      - DEPLOY_REF=${DEPLOY_REF:-unknown}
+      - DEPLOY_REF=${DEPLOY_REF:-NA}
     depends_on:
       db:
         condition: service_healthy
