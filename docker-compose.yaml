@@ -1,24 +1,15 @@
 name: catty
 
 services:
-  app:
-    image: ghcr.io/yaroslavfomenko/catty-reminders-app:latest
-    ports:
-      - "8181:8181"
-    environment:
-      - DEPLOY_REF=${DEPLOY_REF:-NA}
-    depends_on:
-      db:
-        condition: service_healthy
-    restart: unless-stopped
-
   db:
     image: mysql:8.0
+    container_name: catty-db
+    restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: catty_password
-      MYSQL_DATABASE: catty_db
-      MYSQL_USER: catty_user
-      MYSQL_PASSWORD: catty_password
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
@@ -26,7 +17,20 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  app:
+    image: ${IMAGE:-ghcr.io/yaroslavfomenko/catty-reminders-app:latest}
+    container_name: catty-app
     restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8181:8181"
+    environment:
+      - DEPLOY_REF=${DEPLOY_REF:-NA}
+    volumes:
+      - ./config.json:/app/config.json:ro
 
 volumes:
   db_data:

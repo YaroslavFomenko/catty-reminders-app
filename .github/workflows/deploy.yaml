@@ -16,12 +16,23 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 3124
           script: |
+            set -e
             cd /home/yaroslav/devops-lab/catty-reminders-app
             git fetch origin
             git reset --hard origin/lab4
-            export DEPLOY_REF=${{ github.sha }}
-            echo "Deploying with DEPLOY_REF=$DEPLOY_REF"
+            
+            OWNER=$(echo "${{ github.repository_owner }}" | tr "[:upper:]" "[:lower:]")
+            IMAGE="ghcr.io/$OWNER/catty-reminders-app:${{ github.sha }}"
+            
+            printf "IMAGE=%s\n" "$IMAGE" > .env
+            printf "DEPLOY_REF=%s\n" "${{ github.sha }}" >> .env
+            printf "MYSQL_ROOT_PASSWORD=%s\n" "catty_password" >> .env
+            printf "MYSQL_DATABASE=%s\n" "catty_db" >> .env
+            printf "MYSQL_USER=%s\n" "catty_user" >> .env
+            printf "MYSQL_PASSWORD=%s\n" "catty_password" >> .env
+            
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            docker-compose pull
-            docker-compose up -d --force-recreate --remove-orphans
+            
+            docker compose pull
+            docker compose up -d --force-recreate --remove-orphans
             docker image prune -f
