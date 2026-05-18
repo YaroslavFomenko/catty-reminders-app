@@ -55,6 +55,8 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v4
+      - name: Prepare lowercase repo
+        run: echo "REPO_LC=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
@@ -69,5 +71,5 @@ jobs:
           build-args: |
             DEPLOY_REF=${{ github.sha }}
           tags: |
-            ghcr.io/${{ github.repository_owner }}/catty-reminders-app:latest
-            ghcr.io/${{ github.repository_owner }}/catty-reminders-app:${{ github.sha }}
+            ghcr.io/${{ env.REPO_LC }}/catty-reminders-app:latest
+            ghcr.io/${{ env.REPO_LC }}/catty-reminders-app:${{ github.sha }}
