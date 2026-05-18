@@ -8,7 +8,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy via Docker Compose
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: course.prafdin.ru
@@ -24,14 +24,12 @@ jobs:
             OWNER=$(echo "${{ github.repository_owner }}" | tr "[:upper:]" "[:lower:]")
             IMAGE="ghcr.io/$OWNER/catty-reminders-app:${{ github.sha }}"
             
-            cat > .env << ENVEOF
-            IMAGE=$IMAGE
-            DEPLOY_REF=${{ github.sha }}
-            MYSQL_ROOT_PASSWORD=catty_password
-            MYSQL_DATABASE=catty_db
-            MYSQL_USER=catty_user
-            MYSQL_PASSWORD=catty_password
-            ENVEOF
+            export IMAGE="$IMAGE"
+            export DEPLOY_REF="${{ github.sha }}"
+            export MYSQL_ROOT_PASSWORD="catty_password"
+            export MYSQL_DATABASE="catty_db"
+            export MYSQL_USER="catty_user"
+            export MYSQL_PASSWORD="catty_password"
             
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
